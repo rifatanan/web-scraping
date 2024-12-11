@@ -15,18 +15,18 @@ const heroIcon = [
 const Slider = () => {
 	const [currentIndex, setCurrentIndex] = useState(0);
 
-	useEffect(() => {
-		const interval = setInterval(() => {
-			setCurrentIndex((prev) =>{
-				if(prev === heroIcon.length-1)
-					prev=0;
-				else
-					prev = prev+1;
-				return prev;
-			}
-		)}, 2000);
-		clearInterval(interval);
-	  }, []);
+	// useEffect(() => {
+	// 	const interval = setInterval(() => {
+	// 		setCurrentIndex((prev) =>{
+	// 			if(prev === heroIcon.length-1)
+	// 				prev=0;
+	// 			else
+	// 				prev = prev+1;
+	// 			return prev;
+	// 		}
+	// 	)}, 2000);
+	// 	clearInterval(interval);
+	//   }, []);
 
 	return (
 		<div className="relative bg-slate-200 rounded-lg">
