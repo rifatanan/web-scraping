@@ -15,11 +15,11 @@ const geistMono = localFont({
 const RobotoRegular = localFont({
 	src: "./fonts/Roboto-Regular.woff",
 	variable: "--font-roboto"
-  });
+});
 
 export const metadata: Metadata = {
-  title: "Web Scrapping",
-  description: "For Learning",
+	title: "Web Scrapping",
+	description: "For Learning",
 };
 
 export default function RootLayout({
@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${RobotoRegular.variable } antialiased md:px-[200px]`}
+        className={`${geistSans.variable} ${geistMono.variable} ${RobotoRegular.variable } antialiased lg:px-[200px]`}
       >
 		<Nav />
         {children}

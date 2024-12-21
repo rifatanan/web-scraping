@@ -1,4 +1,5 @@
 'use client'
+import { scrapAddStoreProduct } from '@/app/lib/actions';
 import React, { FormEvent, useState } from 'react'
 
 const isValidAmazonProductURL = (value:string) =>{
@@ -25,6 +26,9 @@ const Input = () => {
 		if(!validLink)alert('Please Provide Vlid Link');
 		try{
 			setIsLoading(true);
+			console.log('dsfajkj');
+			
+			scrapAddStoreProduct(searchInput);
 		}
 		catch(error){
 			console.log(error);
@@ -42,7 +46,7 @@ const Input = () => {
 			<button
 			className='p-2 bg-green-300 rounded-md'
 			disabled={searchInput === ''}>
-				{isLoading?'Seaching':'Search'}
+				{isLoading?'Seaching...':'Search'}
 			</button>
 		</form>
 	)
