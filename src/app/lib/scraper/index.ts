@@ -33,13 +33,21 @@ export async function scrapedAmazonProduct(url: string) {
             $('span.a-offscreen'),
         );
 
-        const orginalPrice = extractPrice($('.a-size-base.a-color-secondary'));
+        const orginalPrice = extractPrice(
+            $(
+                'span.a-price.a-text-price.a-size-medium.apexPriceToPay.a-price-whole',
+            ),
+            $('span.a-offscreen'),
+        );
 
-        const availableStock = $(
-            '#availability span.a-size-medium.a-color-success',
-        )
+        const availableStock = $('#availability .a-size-medium.a-color-success')
             .text()
             .trim();
+
+        const images = $('#landingImage').attr('data-a-dynamic-image') || '{}';
+        const imagesUrls = Object.keys(JSON.parse(images));
+
+        const currency = orginalPrice.slice(0, 1);
 
         console.log(
             'title:',
@@ -49,7 +57,20 @@ export async function scrapedAmazonProduct(url: string) {
                 '\noriginalPrice:' +
                 orginalPrice,
             '\navailableStock:' + availableStock,
+            '\nImage:' + imagesUrls,
+            '\nCurrency:' + currency,
         );
+
+        const data = {
+            url,
+            currency: currency || '0$',
+            image: images[0],
+            title,
+            currentPrice,
+            orginalPrice,
+        };
+
+        console.log(data);
     } catch (error) {
         console.error('Error fetching product page:', error);
     }

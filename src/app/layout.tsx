@@ -15,11 +15,11 @@ const geistMono = localFont({
 const RobotoRegular = localFont({
 	src: "./fonts/Roboto-Regular.woff",
 	variable: "--font-roboto"
-  });
+});
 
 export const metadata: Metadata = {
-  title: "Web Scrapping",
-  description: "For Learning",
+	title: "Web Scrapping",
+	description: "For Learning",
 };
 
 export default function RootLayout({

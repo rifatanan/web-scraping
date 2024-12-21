@@ -26,7 +26,6 @@ const Input = () => {
 		if(!validLink)alert('Please Provide Vlid Link');
 		try{
 			setIsLoading(true);
-			debugger
 			console.log('dsfajkj');
 			
 			scrapAddStoreProduct(searchInput);
@@ -34,7 +33,6 @@ const Input = () => {
 		catch(error){
 			console.log(error);
 		}finally{
-			debugger;
 			setIsLoading(false);
 		}
 	}
