@@ -19,16 +19,15 @@ const Input = () => {
 	const [searchInput, setSearchInput] = useState('');
 	const [isLoading,setIsLoading] = useState(false);
 
-	const handleClick = (event:FormEvent<HTMLFormElement>) => {
+	const handleClick = async(event:FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		const  validLink = isValidAmazonProductURL(searchInput)
-		//setSearchInput('');
 		if(!validLink)alert('Please Provide Vlid Link');
 		try{
 			setIsLoading(true);
-			console.log('dsfajkj');
+			console.log(isLoading);
 			
-			scrapAddStoreProduct(searchInput);
+			await scrapAddStoreProduct(searchInput);
 		}
 		catch(error){
 			console.log(error);
@@ -40,13 +39,13 @@ const Input = () => {
 	return (
 		<form onSubmit={handleClick} className='w-full flex items-center gap-2'>
 			<input type="text"
-			value={searchInput}
-			onChange={(e)=>setSearchInput(e.target.value)}
-			className='p-2 w-[94%] outline-none rounded-md bg-slate-100'/>
+				value={searchInput}
+				onChange={(e)=>setSearchInput(e.target.value)}
+				className='p-2 w-[94%] outline-none rounded-md bg-slate-100'/>
 			<button
-			className='p-2 bg-green-300 rounded-md'
-			disabled={searchInput === ''}>
-				{isLoading?'Seaching...':'Search'}
+				className='p-2 bg-green-300 rounded-md'
+				disabled={searchInput === '' || isLoading}>
+					{isLoading?'Seaching...':'Search'}
 			</button>
 		</form>
 	)
