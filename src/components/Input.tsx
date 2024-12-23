@@ -1,6 +1,6 @@
 'use client'
 import { scrapAddStoreProduct } from '@/app/lib/actions';
-import React, { FormEvent, useState } from 'react'
+import React, { FormEvent, useState } from 'react';
 
 const isValidAmazonProductURL = (value:string) =>{
 	try{
@@ -15,9 +15,15 @@ const isValidAmazonProductURL = (value:string) =>{
 	}
 }
 
-const Input = () => {
+type inputType ={
+	data:object | undefined,
+	setData: React.Dispatch<React.SetStateAction<object | undefined>>; 
+}
+
+const Input:React.FC<inputType> = ({data,setData}) => {
 	const [searchInput, setSearchInput] = useState('');
 	const [isLoading,setIsLoading] = useState(false);
+	console.log('data:'+data)
 
 	const handleClick = async(event:FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -27,7 +33,8 @@ const Input = () => {
 			setIsLoading(true);
 			console.log(isLoading);
 			
-			await scrapAddStoreProduct(searchInput);
+			const returnData =  await scrapAddStoreProduct(searchInput);
+			setData(returnData);
 		}
 		catch(error){
 			console.log(error);

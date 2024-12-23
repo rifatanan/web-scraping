@@ -1,21 +1,18 @@
-'use server';
-
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { extractCurrency, extractDescription, extractPrice } from '../utils';
+import { extractPrice } from '../utils';
 
-export async function scrapeAmazonProduct(url: string) {
+export async function scrapedAmazonProduct(url: string) {
     if (!url) return;
 
-    // BrightData proxy configuration
-    const username = String(process.env.BRIGHT_DATA_USERNAME);
+    const userName = String(process.env.BRIGHT_DATA_USERNAME);
     const password = String(process.env.BRIGHT_DATA_PASSWORD);
-    const port = 22225;
-    const session_id = (1000000 * Math.random()) | 0;
+    const port = 33335;
+    const session_id = (100000 * Math.random()) | 0;
 
     const options = {
         auth: {
-            username: `${username}-session-${session_id}`,
+            username: `${userName}-session-${session_id}`,
             password,
         },
         host: 'brd.superproxy.io',
@@ -24,67 +21,72 @@ export async function scrapeAmazonProduct(url: string) {
     };
 
     try {
-        // Fetch the product page
         const response = await axios.get(url, options);
         const $ = cheerio.load(response.data);
-
-        // Extract the product title
         const title = $('#productTitle').text().trim();
         const currentPrice = extractPrice(
-            $('.priceToPay span.a-price-whole'),
-            $('.a.size.base.a-color-price'),
-            $('.a-button-selected .a-color-base'),
+            $(
+                'span.a-price.a-text-price.a-size-medium.apexPriceToPay.a-price-whole',
+            ),
+            $('span.a-offscreen'),
         );
 
-        const originalPrice = extractPrice(
-            $('#priceblock_ourprice'),
-            $('.a-price.a-text-price span.a-offscreen'),
-            $('#listPrice'),
-            $('#priceblock_dealprice'),
-            $('.a-size-base.a-color-price'),
+        const orginalPrice = extractPrice(
+            $(
+                'span.a-price.a-text-price.a-size-medium.apexPriceToPay.a-price-whole',
+            ),
+            $('span.a-offscreen'),
         );
 
-        const outOfStock =
-            $('#availability span').text().trim().toLowerCase() ===
-            'currently unavailable';
-
-        const images =
-            $('#imgBlkFront').attr('data-a-dynamic-image') ||
-            $('#landingImage').attr('data-a-dynamic-image') ||
-            '{}';
-
-        const imageUrls = Object.keys(JSON.parse(images));
-
-        const currency = extractCurrency($('.a-price-symbol'));
-        const discountRate = $('.savingsPercentage')
+        const availableStock = $('#availability .a-size-medium.a-color-success')
             .text()
-            .replace(/[-%]/g, '');
+            .trim();
 
-        const description = extractDescription($);
+        const images = $('#landingImage').attr('data-a-dynamic-image') || '{}';
+        const imagesUrls = Object.keys(JSON.parse(images));
 
-        // Construct data object with scraped information
+        const currency = orginalPrice.slice(0, 1);
+
+        const description = $('.a-unordered-list .a-spacing-mini .a-list-item');
+
+        const descriptions: { description: string }[] = [];
+
+        description.each((index, item) => {
+            const descriptionText = $(item).text();
+            descriptions.push({ description: descriptionText });
+        });
+        console.log(
+            'title:',
+            title +
+                '\ncurrentPrice:' +
+                currentPrice +
+                '\noriginalPrice:' +
+                orginalPrice,
+            '\navailableStock:' + availableStock,
+            '\nImage:' + imagesUrls,
+            '\nCurrency:' + currency,
+        );
+
         const data = {
             url,
-            currency: currency || '$',
-            image: imageUrls[0],
+            currency: currency || '0$',
+            image: images[0],
             title,
-            currentPrice: Number(currentPrice) || Number(originalPrice),
-            originalPrice: Number(originalPrice) || Number(currentPrice),
-            priceHistory: [],
-            discountRate: Number(discountRate),
+            currentPrice,
+            orginalPrice,
+            discountRate: '',
             category: 'category',
-            reviewsCount: 100,
-            stars: 4.5,
-            isOutOfStock: outOfStock,
-            description,
-            lowestPrice: Number(currentPrice) || Number(originalPrice),
-            highestPrice: Number(originalPrice) || Number(currentPrice),
-            averagePrice: Number(currentPrice) || Number(originalPrice),
+            reviewCount: 100,
+            availableStock,
+            description: descriptions,
+            lowestPrice: currentPrice || orginalPrice,
+            heighestPrice: orginalPrice || currentPrice,
+            average: currentPrice || orginalPrice,
         };
 
         console.log(data);
         return data;
-    } catch (error: any) {
-        console.log(error);
+    } catch (error) {
+        console.error('Error fetching product page:', error);
     }
 }
