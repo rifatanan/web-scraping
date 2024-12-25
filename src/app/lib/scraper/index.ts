@@ -84,7 +84,7 @@ export async function scrapedAmazonProduct(url: string) {
             average: currentPrice || orginalPrice,
         };
 
-        console.log(data);
+        console.log('scraper index', data);
         return data;
     } catch (error) {
         console.error('Error fetching product page:', error);
