@@ -1,5 +1,7 @@
 'use client'
 import { scrapAddStoreProduct } from '@/app/lib/actions';
+import { useRouter } from 'next/navigation'
+
 import React, { FormEvent, useState } from 'react';
 
 const isValidAmazonProductURL = (value:string) =>{
@@ -17,13 +19,18 @@ const isValidAmazonProductURL = (value:string) =>{
 
 type inputType ={
 	data:object | undefined,
-	setData: React.Dispatch<React.SetStateAction<object | undefined>>; 
+	//setData: React.Dispatch<React.SetStateAction<object | undefined | string>>; 
 }
 
-const Input:React.FC<inputType> = ({data,setData}) => {
+const Input:React.FC<inputType> = ({data}) => {
 	const [searchInput, setSearchInput] = useState('');
 	const [isLoading,setIsLoading] = useState(false);
-	console.log('data:'+data)
+	const router = useRouter();
+
+	let a;
+	console.log('a',a);
+		
+		a='4'
 
 	const handleClick = async(event:FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -34,7 +41,11 @@ const Input:React.FC<inputType> = ({data,setData}) => {
 			console.log(isLoading);
 			
 			const returnData =  await scrapAddStoreProduct(searchInput);
-			setData(returnData);
+			//setData(returnData);
+			console.log("return :",returnData);
+			
+			const serializedData = encodeURIComponent(JSON.stringify(returnData));
+        	router.push(`/products/1?data=${serializedData}`);
 		}
 		catch(error){
 			console.log(error);

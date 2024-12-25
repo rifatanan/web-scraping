@@ -5,7 +5,7 @@ import Input from '@/components/Input'
 import Slider from '@/components/Slider'
 
 const page = () => {
-	const [data,setData] =  useState<object | undefined>(undefined);
+	const [data,setData] =  useState<object | undefined >(undefined);
 
 	return (
 		<div className='px-2 md:px-5 py-10 space-y-3 relative shadow-2xl grid grid-cols-1 md:grid-cols-2 w-full justify-center items-center'>
@@ -16,7 +16,7 @@ const page = () => {
 				</div>
 				<h1 className='font-bold text-4xl'>Unlesh the Power of <span className='text-red-600'>Price Wise</span></h1>
 				<p>Powerfull and self serve product and growth analytics to help you and convert,engage and retain more</p>
-				<Input data={data} setData={setData}/>
+				<Input data={data} />
 			</div>
 			<Slider />
 		</div>
