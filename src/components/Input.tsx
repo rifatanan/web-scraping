@@ -45,6 +45,8 @@ const Input:React.FC<inputType> = ({data}) => {
 			console.log("return :",returnData);
 			
 			const serializedData = encodeURIComponent(JSON.stringify(returnData));
+			console.log('input:',serializedData);
+			
         	router.push(`/products/1?data=${serializedData}`);
 		}
 		catch(error){
