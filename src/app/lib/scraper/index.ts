@@ -43,7 +43,11 @@ export async function scrapedAmazonProduct(url: string) {
             .trim();
 
         const images = $('#landingImage').attr('data-a-dynamic-image') || '{}';
-        const imagesUrls = Object.keys(JSON.parse(images));
+        let imagesUrls = Object.keys(JSON.parse(images));
+        console.log('type of imagesurl:', typeof imagesUrls);
+
+        const a = images.split(',');
+        console.log('image' + a[0]);
 
         const currency = orginalPrice.slice(0, 1);
 
@@ -70,7 +74,7 @@ export async function scrapedAmazonProduct(url: string) {
         const data = {
             url,
             currency: currency || '0$',
-            image: images[0],
+            image: imagesUrls[0],
             title,
             currentPrice,
             orginalPrice,
