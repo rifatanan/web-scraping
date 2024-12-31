@@ -27,16 +27,16 @@ type dataType = {
 const ProductPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [s, setS] = useState<dataType | null>(null);
+    const [data, setData] = useState<dataType | null>(null);
 
     useEffect(() => {
-        const d = searchParams.get('data');
+        const getParamsData = searchParams.get('data');
 
-        if (d) {
+        if (getParamsData) {
             try {
-                const parsedData: dataType = JSON.parse(d);
+                const parsedData: dataType = JSON.parse(getParamsData);
                 console.log('Parsed Description:', parsedData.description);
-                setS(parsedData);
+                setData(parsedData);
             } catch (error) {
                 console.error('Error parsing JSON:', error);
             }
@@ -50,7 +50,7 @@ const ProductPage = () => {
 			<div className='shadow-md rounded-sm flex flex-col md:flex-row lg:flex-row gap-4 p-5'>
 				<div className='flex items-center bg-red-300 w-[1000px]' >
 					<Image 
-						src={s?.image || '/Images/image.png'} 
+						src={data?.image || '/Images/image.png'} 
 						alt='Product Image' 
 						width={700} 
 						height={800}
@@ -61,24 +61,24 @@ const ProductPage = () => {
 					/>
 				</div>
 				<div className='gap-5 flex flex-col'>
-					<h1 className='font-bold'>{s?.title}</h1>
-					<p>{s?.currentPrice}</p>
+					<h1 className='font-bold'>{data?.title}</h1>
+					<p>{data?.currentPrice}</p>
 					<div className='grid grid-flow-col grid-rows-2 gap-2 '>
 						<div className='p-1 bg-slate-200 rounded-sm'>
 							<h1>Current Price</h1>
-							<p>{s?.currentPrice}</p>
+							<p>{data?.currentPrice}</p>
 						</div>
 						<div className='p-1 bg-slate-200 rounded-sm'>
 							<h1>Avarage Price</h1>
-							<p>{s?.currentPrice}</p>
+							<p>{data?.currentPrice}</p>
 						</div>
 						<div className='p-1 bg-slate-200 rounded-sm'>
 							<h1>Highest Price</h1>
-							<p>{s?.heighestPrice}</p>
+							<p>{data?.heighestPrice}</p>
 						</div>
 						<div className='p-1 bg-slate-200 rounded-sm'>
 							<h1>Lowest Price</h1>
-							<p>{s?.lowestPrice}</p>
+							<p>{data?.lowestPrice}</p>
 						</div>
 					</div>
 					<button className='bg-red-400 p-2 rounded-full'>Track</button>
@@ -86,7 +86,7 @@ const ProductPage = () => {
 			</div>
 			<div>
 				<h1 className='font-bold'>Product Description</h1>
-				{s?.description.map((item,index)=>(
+				{data?.description.map((item,index)=>(
 					<div key={index} className='p-2'>
 						<h1>{item.description}</h1>
 					</div>
