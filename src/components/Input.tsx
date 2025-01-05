@@ -19,7 +19,6 @@ const isValidAmazonProductURL = (value:string) =>{
 
 type inputType ={
 	data:object | undefined,
-	//setData: React.Dispatch<React.SetStateAction<object | undefined | string>>; 
 }
 
 const Input:React.FC<inputType> = ({data}) => {
@@ -27,32 +26,22 @@ const Input:React.FC<inputType> = ({data}) => {
 	const [isLoading,setIsLoading] = useState(false);
 	const router = useRouter();
 
-	let a;
-	console.log('a',a);
-		
-		a='4'
-
 	const handleClick = async(event:FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		const  validLink = isValidAmazonProductURL(searchInput)
 		if(!validLink)alert('Please Provide Vlid Link');
-		try{
-			setIsLoading(true);
-			console.log(isLoading);
-			
-			const returnData =  await scrapAddStoreProduct(searchInput);
-			//setData(returnData);
-			console.log("return :",returnData);
-			
-			const serializedData = encodeURIComponent(JSON.stringify(returnData));
-			console.log('input:',serializedData);
-			
-        	router.push(`/products/1?data=${serializedData}`);
-		}
-		catch(error){
-			console.log(error);
-		}finally{
-			setIsLoading(false);
+		else{
+			try{
+				setIsLoading(true);
+				const returnData =  await scrapAddStoreProduct(searchInput);
+				const serializedData = encodeURIComponent(JSON.stringify(returnData));
+				router.push(`/products/1?data=${serializedData}`);
+			}
+			catch(error){
+				throw error;
+			}finally{
+				setIsLoading(false);
+			}
 		}
 	}
 

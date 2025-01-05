@@ -1,6 +1,6 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation'; 
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import Image from 'next/image';
 
 type DescriptionItem = {
@@ -28,6 +28,8 @@ const ProductPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [data, setData] = useState<dataType | null>(null);
+	const [email, setEmail] = useState<string>('');
+	const [price, setPrice] = useState<number>(0);
 
     useEffect(() => {
         const getParamsData = searchParams.get('data');
@@ -45,10 +47,44 @@ const ProductPage = () => {
         }
     }, [searchParams]);
 
+	const handleTrace = async (e: any) => {
+		e.preventDefault();
+		console.log('Send email Call');
+	
+		const payload = {
+			subject: 'Track Request',
+			text: 'User requested to track the product.',
+			html: `<h1>Track Request</h1><p>Email: ${email}</p>`,
+			email:email,
+			price
+		};
+	
+		try {
+			const sendMail = await fetch('/api/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(payload),
+			});
+	
+			const response = await sendMail.json();
+			
+			if (sendMail.ok) {
+				console.log('Mail sent successfully:', response);
+			} else {
+				console.error('Mail sending failed:', response);
+			}
+		} catch (error) {
+			console.log('Error in sending mail:');
+		}
+	};
+	
+
     return (
         <div className='space-y-10 p-3'>
 			<div className='shadow-md rounded-sm flex flex-col md:flex-row lg:flex-row gap-4 p-5'>
-				<div className='flex items-center bg-red-300 w-[1000px]' >
+				<div className='flex items-center w-[1000px]' >
 					<Image 
 						src={data?.image || '/Images/image.png'} 
 						alt='Product Image' 
@@ -81,7 +117,25 @@ const ProductPage = () => {
 							<p>{data?.lowestPrice}</p>
 						</div>
 					</div>
-					<button className='bg-red-400 p-2 rounded-full'>Track</button>
+					<form onSubmit={handleTrace} className='flex flex-col gap-3'>
+						<input
+							type="number"
+							placeholder="Enter a Price number"
+							className=" bg-red-200 p-1 rounded-sm outline-none"
+							onChange={(e)=>setPrice(Number(e.target.value))}
+						/>
+						<input
+							className='w-full bg-red-200 outline-none p-1 rounded-sm'
+							placeholder='Enter Email'
+							onChange={(e)=>setEmail(e.target.value)}
+							required></input>
+						<button
+							className='bg-red-400 p-2 rounded-full w-full cursor-pointer'
+							type='submit' 
+							>
+							Track
+						</button>
+					</form>
 				</div>
 			</div>
 			<div>
@@ -97,3 +151,5 @@ const ProductPage = () => {
 };
 
 export default ProductPage;
+
+
