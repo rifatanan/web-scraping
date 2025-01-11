@@ -1,6 +1,6 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation'; 
-import { FormEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 type DescriptionItem = {
@@ -29,7 +29,8 @@ const ProductPage = () => {
     const searchParams = useSearchParams();
     const [data, setData] = useState<dataType | null>(null);
 	const [email, setEmail] = useState<string>('');
-	const [price, setPrice] = useState<number>(0);
+	const [price, setPrice] = useState<number | null>(null);
+	const [isValid, setIsValid] = useState<boolean>(true);
 
     useEffect(() => {
         const getParamsData = searchParams.get('data');
@@ -47,16 +48,28 @@ const ProductPage = () => {
         }
     }, [searchParams]);
 
-	const handleTrace = async (e: any) => {
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+	const validateEmail = (value: string) => {
+		setIsValid(emailRegex.test(value)); // Check if email matches the regex
+	};
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+		setEmail(value);
+		validateEmail(value);
+	};
+
+	const handleTrace = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		console.log('Send email Call');
 	
 		const payload = {
 			subject: 'Track Request',
 			text: 'User requested to track the product.',
-			html: `<h1>Track Request</h1><p>Email: ${email}</p>`,
-			email:email,
-			price
+			html: `<h1>Track Request</h1>
+			<p>Email: ${email}</p>
+			<p>Price: ${price}</p>`,
 		};
 	
 		try {
@@ -76,10 +89,9 @@ const ProductPage = () => {
 				console.error('Mail sending failed:', response);
 			}
 		} catch (error) {
-			console.log('Error in sending mail:');
+			console.log('Error in sending mail:', error);
 		}
 	};
-	
 
     return (
         <div className='space-y-10 p-3'>
@@ -105,8 +117,8 @@ const ProductPage = () => {
 							<p>{data?.currentPrice}</p>
 						</div>
 						<div className='p-1 bg-slate-200 rounded-sm'>
-							<h1>Avarage Price</h1>
-							<p>{data?.currentPrice}</p>
+							<h1>Average Price</h1>
+							<p>{data?.average}</p>
 						</div>
 						<div className='p-1 bg-slate-200 rounded-sm'>
 							<h1>Highest Price</h1>
@@ -121,18 +133,21 @@ const ProductPage = () => {
 						<input
 							type="number"
 							placeholder="Enter a Price number"
-							className=" bg-red-200 p-1 rounded-sm outline-none"
-							onChange={(e)=>setPrice(Number(e.target.value))}
+							className={`p-1 rounded-sm outline-none`}
+							onChange={(e) => setPrice(Number(e.target.value))}
 						/>
 						<input
-							className='w-full bg-red-200 outline-none p-1 rounded-sm'
+							className={`w-full outline-none p-1 rounded-sm ${isValid ? 'border-green-500' : 'border-red-500'}`}
 							placeholder='Enter Email'
-							onChange={(e)=>setEmail(e.target.value)}
-							required></input>
+							value={email}
+							onChange={handleChange}
+							required
+						/>
 						<button
 							className='bg-red-400 p-2 rounded-full w-full cursor-pointer'
-							type='submit' 
-							>
+							type='submit'
+							disabled={!email || !isValid || price === null || price < Number(data?.currentPrice || 0)}
+						>
 							Track
 						</button>
 					</form>
@@ -140,7 +155,7 @@ const ProductPage = () => {
 			</div>
 			<div>
 				<h1 className='font-bold'>Product Description</h1>
-				{data?.description.map((item,index)=>(
+				{data?.description.map((item, index) => (
 					<div key={index} className='p-2'>
 						<h1>{item.description}</h1>
 					</div>
@@ -151,5 +166,3 @@ const ProductPage = () => {
 };
 
 export default ProductPage;
-
-
