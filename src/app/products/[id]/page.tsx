@@ -24,13 +24,19 @@ type dataType = {
     average: string;
 };
 
+interface Errors {
+	price: boolean;
+	email: boolean;
+  }
+
 const ProductPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [data, setData] = useState<dataType | null>(null);
 	const [email, setEmail] = useState<string>('');
 	const [price, setPrice] = useState<number | null>(null);
-	const [isValid, setIsValid] = useState<boolean>(true);
+	const [isValidEmail, setIsValidEmail] = useState<boolean>(false);
+	const [errors, setErrors] = useState<Errors>({ price: false, email: false });
 
     useEffect(() => {
         const getParamsData = searchParams.get('data');
@@ -51,13 +57,14 @@ const ProductPage = () => {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 	const validateEmail = (value: string) => {
-		setIsValid(emailRegex.test(value)); // Check if email matches the regex
+		setIsValidEmail(emailRegex.test(value));
 	};
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
-		setEmail(value);
 		validateEmail(value);
+		console.log('email:',value);
+		
 	};
 
 	const handleTrace = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -92,6 +99,8 @@ const ProductPage = () => {
 			console.log('Error in sending mail:', error);
 		}
 	};
+	console.log('input Price:',data?.currentPrice);
+	
 
     return (
         <div className='space-y-10 p-3'>
@@ -132,21 +141,28 @@ const ProductPage = () => {
 					<form onSubmit={handleTrace} className='flex flex-col gap-3'>
 						<input
 							type="number"
-							placeholder="Enter a Price number"
-							className={`p-1 rounded-sm outline-none`}
-							onChange={(e) => setPrice(Number(e.target.value))}
+							className={`border-2 p-1 appearance-none focus:outline-none ${
+								price === null || price <= 0 || price > Number(data?.currentPrice)
+								? 'border-red-300' : 'border-blue-300'}`}
+							placeholder='Price'
+							onChange={(e)=>setPrice(Number(e.target.value))}
 						/>
+						{
+							price === null || price <= 0 || price >= Number(data?.currentPrice)?(<p className='text-red-500'>Price Must Be greater than zero and less than price</p>):''
+						}
 						<input
-							className={`w-full outline-none p-1 rounded-sm ${isValid ? 'border-green-500' : 'border-red-500'}`}
-							placeholder='Enter Email'
-							value={email}
-							onChange={handleChange}
-							required
+							type="text"
+							className={`appearance-none focus:outline-none border-2 p-1 ${isValidEmail === true? 'border-blue-300': 'border-red-300'}`}
+							placeholder='Email'
+							onChange={(e)=>handleChange(e)}
 						/>
+						{
+							isValidEmail === false?(<p className='text-red-500'>Must be Valid Email</p>):''
+						}
 						<button
 							className='bg-red-400 p-2 rounded-full w-full cursor-pointer'
 							type='submit'
-							disabled={!email || !isValid || price === null || price < Number(data?.currentPrice || 0)}
+							disabled={price === null || price === 0 ||  price<Number(data?.currentPrice) || !isValidEmail}
 						>
 							Track
 						</button>
