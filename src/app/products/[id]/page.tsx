@@ -2,6 +2,7 @@
 import { useRouter, useSearchParams } from 'next/navigation'; 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { Email } from '@/utils/email';
 
 type DescriptionItem = {
     description: string;
@@ -24,10 +25,10 @@ type dataType = {
     average: string;
 };
 
-interface Errors {
-	price: boolean;
-	email: boolean;
-  }
+type emailPriceType = {
+	email:string,
+	price:number|null
+}
 
 const ProductPage = () => {
     const router = useRouter();
@@ -36,71 +37,61 @@ const ProductPage = () => {
 	const [email, setEmail] = useState<string>('');
 	const [price, setPrice] = useState<number | null>(null);
 	const [isValidEmail, setIsValidEmail] = useState<boolean>(false);
-	const [errors, setErrors] = useState<Errors>({ price: false, email: false });
 
-    useEffect(() => {
-        const getParamsData = searchParams.get('data');
+    const callWorker = (data:emailPriceType) => {
+		if (typeof window !== 'undefined') {
+			const worker = new Worker(new URL('../../../utils/worker.ts', import.meta.url), {
+				type: 'module',
+			});
 
-        if (getParamsData) {
-            try {
-                const parsedData: dataType = JSON.parse(getParamsData);
-                console.log('Parsed Description:', parsedData.description);
-                setData(parsedData);
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-            }
-        } else {
-            console.warn('No data found in search params');
-        }
-    }, [searchParams]);
+			console.log(data);
+			
+			worker.postMessage(data);
 
-	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			worker.onmessage = (e: any) => {
+				console.log('Message from worker:', e.data);
+			};
 
-	const validateEmail = (value: string) => {
+			return () => worker.terminate();
+		}
+	  };
+	
+	  useEffect(() => {
+		const getParamsData = searchParams.get('data');
+	
+		if (getParamsData) {
+		  try {
+			const parsedData = JSON.parse(getParamsData);
+			console.log('Parsed Description:', parsedData.description);
+			setData(parsedData);
+		  } catch (error) {
+			console.log('Error parsing JSON:', error);
+		  }
+		} else {
+		  console.log('No data found in search params');
+		}
+	  }, [searchParams]);
+	
+	  const newPrice: number = Math.floor(Number(data?.currentPrice.replace(/[^0-9.]/g, "")));
+	
+	  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	
+	  const validateEmail = (value: string) => {
 		setIsValidEmail(emailRegex.test(value));
-	};
-
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	  };
+	
+	  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 		validateEmail(value);
-		console.log('email:',value);
-		
-	};
-
-	const handleTrace = async (e: React.FormEvent<HTMLFormElement>) => {
+		setEmail(value);
+	  };
+	
+	  const handleTrace = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		console.log('Send email Call');
 	
-		const payload = {
-			subject: 'Track Request',
-			text: 'User requested to track the product.',
-			html: `<h1>Track Request</h1>
-			<p>Email: ${email}</p>
-			<p>Price: ${price}</p>`,
-		};
-	
-		try {
-			const sendMail = await fetch('/api/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(payload),
-			});
-	
-			const response = await sendMail.json();
-			
-			if (sendMail.ok) {
-				console.log('Mail sent successfully:', response);
-			} else {
-				console.error('Mail sending failed:', response);
-			}
-		} catch (error) {
-			console.log('Error in sending mail:', error);
-		}
-	};
-	console.log('input Price:',data?.currentPrice);
-	
+		callWorker({email,price});
+	  };
 
     return (
         <div className='space-y-10 p-3'>
@@ -142,13 +133,15 @@ const ProductPage = () => {
 						<input
 							type="number"
 							className={`border-2 p-1 appearance-none focus:outline-none ${
-								price === null || price <= 0 || price > Number(data?.currentPrice)
+								price === null || price <= 0 || price >= newPrice
 								? 'border-red-300' : 'border-blue-300'}`}
 							placeholder='Price'
 							onChange={(e)=>setPrice(Number(e.target.value))}
 						/>
 						{
-							price === null || price <= 0 || price >= Number(data?.currentPrice)?(<p className='text-red-500'>Price Must Be greater than zero and less than price</p>):''
+							price === null || price <= 0 || price >= newPrice
+							?(<p className='text-red-500'>Price Must Be greater than zero and less than current price</p>)
+							:''
 						}
 						<input
 							type="text"
@@ -162,7 +155,7 @@ const ProductPage = () => {
 						<button
 							className='bg-red-400 p-2 rounded-full w-full cursor-pointer'
 							type='submit'
-							disabled={price === null || price === 0 ||  price<Number(data?.currentPrice) || !isValidEmail}
+							disabled={price === null || price === 0 ||  price >= newPrice || !isValidEmail}
 						>
 							Track
 						</button>
