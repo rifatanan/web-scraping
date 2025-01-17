@@ -10,10 +10,8 @@ export const trasporter = nodemailer.createTransport({
 
 type mailOptionsType = {
     from: string;
-    to: string;
 };
 
 export const mailOptions: mailOptionsType = {
     from: process.env.EMAIL || '',
-    to: 'rifatanan01719@gmail.com',
 };

@@ -7,17 +7,13 @@ export async function POST(req: any, res: any) {
     }
 
     const body = await req.json();
-    const { subject, text, html, email, price } = body; // Access the userName from the request body
-
-    console.log(subject);
-    console.log(text);
-    console.log(html);
-    console.log(email);
-    console.log(price);
+    const { subject, text, html, email, price } = body;
+    console.log('api catch email:', email);
 
     try {
         trasporter.sendMail({
             ...mailOptions,
+            to: email,
             subject,
             text,
             html,
