@@ -35,7 +35,7 @@ const Input:React.FC<inputType> = ({data}) => {
 				setIsLoading(true);
 				const returnData =  await scrapAddStoreProduct(searchInput);
 				const serializedData = encodeURIComponent(JSON.stringify(returnData));
-				router.push(`/products/1?data=${serializedData}`);
+				router.push(`/products/1?data=${serializedData}&input=${searchInput}`);
 			}
 			catch(error){
 				throw error;

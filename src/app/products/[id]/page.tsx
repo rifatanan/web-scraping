@@ -2,7 +2,7 @@
 import { useRouter, useSearchParams } from 'next/navigation'; 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { Email } from '@/utils/email';
+import { scrapAddStoreProduct } from '@/app/lib/actions';
 
 type DescriptionItem = {
     description: string;
@@ -37,17 +37,32 @@ const ProductPage = () => {
 	const [email, setEmail] = useState<string>('');
 	const [price, setPrice] = useState<number | null>(null);
 	const [isValidEmail, setIsValidEmail] = useState<boolean>(false);
+	const [inputData, setInputData] = useState<string | null>(null);
 
-    const callWorker = (data:emailPriceType) => {
+
+    const callWorker = async(data:emailPriceType) => {
 		if (typeof window !== 'undefined') {
 			const worker = new Worker(new URL('../../../utils/worker.ts', import.meta.url), {
 				type: 'module',
 			});
 
 			console.log(data);
+			if (inputData !== null) {
+				try{
+					const returnData =  await scrapAddStoreProduct(inputData);
+					//const serializedData = encodeURIComponent(JSON.stringify(returnData));
+					console.log('returnData:',returnData);
+				}
+				catch(error){
+					throw error;
+				}
+			}
 			
-			worker.postMessage(data);
+			// setInterval(() => {
+			// 	worker.postMessage(data);
 
+			// }, 10000);
+			
 			worker.onmessage = (e: any) => {
 				console.log('Message from worker:', e.data);
 			};
@@ -58,13 +73,16 @@ const ProductPage = () => {
 	
 	  useEffect(() => {
 		const getParamsData = searchParams.get('data');
-	
+		const getParamsInputData = searchParams.get('input');
+
 		if (getParamsData) {
-		  try {
-			const parsedData = JSON.parse(getParamsData);
-			console.log('Parsed Description:', parsedData.description);
-			setData(parsedData);
-		  } catch (error) {
+			try {
+				const parsedData = JSON.parse(decodeURIComponent(getParamsData));
+				console.log('Parsed Description:', parsedData.description);
+				console.log('Search Input:', getParamsInputData);
+				setData(parsedData);
+				setInputData(getParamsInputData);
+			} catch (error) {
 			console.log('Error parsing JSON:', error);
 		  }
 		} else {
@@ -150,7 +168,7 @@ const ProductPage = () => {
 							onChange={(e)=>handleChange(e)}
 						/>
 						{
-							isValidEmail === false?(<p className='text-red-500'>Must be Valid Email</p>):''
+							isValidEmail === false?(<p className='text-red-500'>rifatanan01719@gmail.com</p>):''
 						}
 						<button
 							className='bg-red-400 p-2 rounded-full w-full cursor-pointer'
