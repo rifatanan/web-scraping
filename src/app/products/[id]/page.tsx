@@ -41,27 +41,19 @@ const ProductPage = () => {
 
 
     const callWorker = async(data:emailPriceType) => {
+		
 		if (typeof window !== 'undefined') {
 			const worker = new Worker(new URL('../../../utils/worker.ts', import.meta.url), {
 				type: 'module',
 			});
 
-			console.log(data);
-			if (inputData !== null) {
-				try{
-					const returnData =  await scrapAddStoreProduct(inputData);
-					//const serializedData = encodeURIComponent(JSON.stringify(returnData));
-					console.log('returnData:',returnData);
-				}
-				catch(error){
-					throw error;
-				}
-			}
+			console.log('inputData',inputData);
 			
-			// setInterval(() => {
-			// 	worker.postMessage(data);
+			
+			setInterval(() => {
+				worker.postMessage(data);
 
-			// }, 10000);
+			}, 60000);
 			
 			worker.onmessage = (e: any) => {
 				console.log('Message from worker:', e.data);
@@ -91,6 +83,8 @@ const ProductPage = () => {
 	  }, [searchParams]);
 	
 	  const newPrice: number = Math.floor(Number(data?.currentPrice.replace(/[^0-9.]/g, "")));
+	  console.log('newPrice: ',newPrice);
+	  
 	
 	  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	
@@ -107,8 +101,19 @@ const ProductPage = () => {
 	  const handleTrace = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		console.log('Send email Call');
+
+		if (inputData !== null) {
+			try{
+				// const returnData =  await scrapAddStoreProduct(inputData);
+				// console.log('returnData', returnData);
+				callWorker({email,price});
+			}
+			catch(error){
+				throw error;
+			}
+		}
 	
-		callWorker({email,price});
+		
 	  };
 
     return (
