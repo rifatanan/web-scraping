@@ -2,7 +2,8 @@
 import { useRouter, useSearchParams } from 'next/navigation'; 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { scrapAddStoreProduct } from '@/app/lib/actions';
+import { Email } from '@/utils/email';
+
 
 type DescriptionItem = {
     description: string;
@@ -39,29 +40,19 @@ const ProductPage = () => {
 	const [isValidEmail, setIsValidEmail] = useState<boolean>(false);
 	const [inputData, setInputData] = useState<string | null>(null);
 
-
     const callWorker = async(data:emailPriceType) => {
+		
 		if (typeof window !== 'undefined') {
 			const worker = new Worker(new URL('../../../utils/worker.ts', import.meta.url), {
 				type: 'module',
 			});
 
-			console.log(data);
-			if (inputData !== null) {
-				try{
-					const returnData =  await scrapAddStoreProduct(inputData);
-					//const serializedData = encodeURIComponent(JSON.stringify(returnData));
-					console.log('returnData:',returnData);
-				}
-				catch(error){
-					throw error;
-				}
-			}
+			console.log('inputData',inputData);
 			
-			// setInterval(() => {
-			// 	worker.postMessage(data);
+			setInterval(() => {
+				worker.postMessage(data);
 
-			// }, 10000);
+			}, 10000);
 			
 			worker.onmessage = (e: any) => {
 				console.log('Message from worker:', e.data);
@@ -69,7 +60,7 @@ const ProductPage = () => {
 
 			return () => worker.terminate();
 		}
-	  };
+	};
 	
 	  useEffect(() => {
 		const getParamsData = searchParams.get('data');
@@ -91,6 +82,8 @@ const ProductPage = () => {
 	  }, [searchParams]);
 	
 	  const newPrice: number = Math.floor(Number(data?.currentPrice.replace(/[^0-9.]/g, "")));
+	  console.log('newPrice: ',newPrice);
+	  
 	
 	  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	
@@ -107,8 +100,56 @@ const ProductPage = () => {
 	  const handleTrace = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		console.log('Send email Call');
-	
-		callWorker({email,price});
+
+		if (inputData !== null) {
+			try{
+				const sendMail = await fetch('/api/productData/', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({inputData}),
+				});
+
+				const createUserInformation = await fetch('/api/create/', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({email,price}),
+				});
+
+				const getAllInformation = await fetch('/api/getAllInformation/', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({}),
+				});
+				const sendMailResponse = await sendMail.json();
+				const createUserInformationResponse = await createUserInformation.json();
+				const getAllInformationResponse = await getAllInformation.json();
+
+				console.log(createUserInformationResponse);
+
+				if (price !== null && Math.floor(Number(sendMailResponse.data.currentPrice.replace(/[^0-9.]/g, ""))) > price) {
+					const intervalVariable = setInterval(() => {
+						try {
+							console.log("Calling Email function...");
+							Email(email, price);
+						} catch (err) {
+							console.error("Error in Email function:", err);
+						}
+					}, 10000);
+				} else {
+					console.warn("Condition not met. Interval not started.");
+				}
+			}
+			catch(error){
+				throw error;
+			}
+		}
+		
 	  };
 
     return (
