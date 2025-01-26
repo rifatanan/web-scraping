@@ -3,8 +3,10 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Input from '@/components/Input'
 import Slider from '@/components/Slider'
+import AfterIntervalEmailCall from '@/utils/AfterIntervalEmailCall'
 
 const page = () => {
+	AfterIntervalEmailCall();
 	const [data,setData] =  useState<object | undefined >(undefined);
 
 	return (

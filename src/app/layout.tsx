@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import AfterIntervalEmailCall from "@/utils/AfterIntervalEmailCall";
 
 export const metadata: Metadata = {
 	title: "Web Scrapping",
@@ -12,6 +13,7 @@ export default function RootLayout({
 	}: Readonly<{
 	children: React.ReactNode;
 	}>) {
+
 	return (
 		<html lang="en">
 		<body
