@@ -7,6 +7,9 @@ const nextConfig: NextConfig & { experimental: { serverActions?: boolean } } = {
     images: {
         domains: ['m.media-amazon.com'],
     },
+    compilerOptions: {
+        types: ['node'],
+    },
 };
 
 export default nextConfig;

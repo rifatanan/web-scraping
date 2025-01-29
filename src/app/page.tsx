@@ -16,7 +16,7 @@ const page = () => {
 				</div>
 				<h1 className='font-bold text-4xl'>Unlesh the Power of <span className='text-red-600'>Price Wise</span></h1>
 				<p>Powerfull and self serve product and growth analytics to help you and convert,engage and retain more</p>
-				<Input data={data} />
+				<Input />
 			</div>
 			<Slider />
 		</div>

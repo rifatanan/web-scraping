@@ -7,7 +7,7 @@ export async function POST(req: any) {
         const result = await prisma.user.findMany({});
         return NextResponse.json({
             status: 'success',
-            data: { result },
+            result,
         });
     } catch (e) {
         return NextResponse.json({ status: 'fail', data: e });

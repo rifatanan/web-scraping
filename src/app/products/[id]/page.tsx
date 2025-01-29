@@ -40,27 +40,27 @@ const ProductPage = () => {
 	const [isValidEmail, setIsValidEmail] = useState<boolean>(false);
 	const [inputData, setInputData] = useState<string | null>(null);
 
-    const callWorker = async(data:emailPriceType) => {
+    // const callWorker = async(data:emailPriceType) => {
 		
-		if (typeof window !== 'undefined') {
-			const worker = new Worker(new URL('../../../utils/worker.ts', import.meta.url), {
-				type: 'module',
-			});
+	// 	if (typeof window !== 'undefined') {
+	// 		const worker = new Worker(new URL('../../../utils/worker.ts', import.meta.url), {
+	// 			type: 'module',
+	// 		});
 
-			console.log('inputData',inputData);
+	// 		console.log('inputData',inputData);
 			
-			setInterval(() => {
-				worker.postMessage(data);
+	// 		setInterval(() => {
+	// 			worker.postMessage(data);
 
-			}, 10000);
+	// 		}, 10000);
 			
-			worker.onmessage = (e: any) => {
-				console.log('Message from worker:', e.data);
-			};
+	// 		worker.onmessage = (e: any) => {
+	// 			console.log('Message from worker:', e.data);
+	// 		};
 
-			return () => worker.terminate();
-		}
-	};
+	// 		return () => worker.terminate();
+	// 	}
+	// };
 	
 	  useEffect(() => {
 		const getParamsData = searchParams.get('data');
@@ -74,8 +74,8 @@ const ProductPage = () => {
 				setData(parsedData);
 				setInputData(getParamsInputData);
 			} catch (error) {
-			console.log('Error parsing JSON:', error);
-		  }
+				console.log('Error parsing JSON:', error);
+			}
 		} else {
 		  console.log('No data found in search params');
 		}
@@ -92,58 +92,35 @@ const ProductPage = () => {
 	  };
 	
 	  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		validateEmail(value);
-		setEmail(value);
+			const value = e.target.value;
+			validateEmail(value);
+			setEmail(value);
 	  };
 	
 	  const handleTrace = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		console.log('Send email Call');
+		//Email(email, price);
 
 		if (inputData !== null) {
 			try{
-				const sendMail = await fetch('/api/productData/', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({inputData}),
-				});
 
 				const createUserInformation = await fetch('/api/create/', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
-					body: JSON.stringify({email,price}),
+					body: JSON.stringify({email,price,inputData}),
 				});
 
-				const getAllInformation = await fetch('/api/getAllInformation/', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({}),
-				});
-				const sendMailResponse = await sendMail.json();
-				const createUserInformationResponse = await createUserInformation.json();
-				const getAllInformationResponse = await getAllInformation.json();
-
-				console.log(createUserInformationResponse);
-
-				if (price !== null && Math.floor(Number(sendMailResponse.data.currentPrice.replace(/[^0-9.]/g, ""))) > price) {
-					const intervalVariable = setInterval(() => {
-						try {
-							console.log("Calling Email function...");
-							Email(email, price);
-						} catch (err) {
-							console.error("Error in Email function:", err);
-						}
-					}, 10000);
-				} else {
-					console.warn("Condition not met. Interval not started.");
+				const createResponse =await createUserInformation.json();
+				if(createResponse.status  === 200){
+					console.log('user successsfully create');
+					setEmail('');
+					setPrice(null);
 				}
+				
+				console.log('create information',createUserInformation);
+				
 			}
 			catch(error){
 				throw error;
@@ -223,11 +200,13 @@ const ProductPage = () => {
 			</div>
 			<div>
 				<h1 className='font-bold'>Product Description</h1>
-				{data?.description.map((item, index) => (
-					<div key={index} className='p-2'>
-						<h1>{item.description}</h1>
-					</div>
-				))}
+				{
+					data?.description.map((item, index) => (
+						<div key={index} className='p-2'>
+							<h1>{item.description}</h1>
+						</div>
+					))
+				}
 			</div>
 		</div>
     );
