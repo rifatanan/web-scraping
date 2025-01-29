@@ -99,51 +99,28 @@ const ProductPage = () => {
 	
 	  const handleTrace = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		console.log('Send email Call');
+		//Email(email, price);
 
 		if (inputData !== null) {
 			try{
-				const sendMail = await fetch('/api/productData/', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({inputData}),
-				});
 
 				const createUserInformation = await fetch('/api/create/', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
-					body: JSON.stringify({email,price}),
+					body: JSON.stringify({email,price,inputData}),
 				});
 
-				const getAllInformation = await fetch('/api/getAllInformation/', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({}),
-				});
-				const sendMailResponse = await sendMail.json();
-				const createUserInformationResponse = await createUserInformation.json();
-				const getAllInformationResponse = await getAllInformation.json();
-
-				console.log(createUserInformationResponse);
-
-				if (price !== null && Math.floor(Number(sendMailResponse.data.currentPrice.replace(/[^0-9.]/g, ""))) > price) {
-					const intervalVariable = setInterval(() => {
-						try {
-							console.log("Calling Email function...");
-							Email(email, price);
-						} catch (err) {
-							console.error("Error in Email function:", err);
-						}
-					}, 10000);
-				} else {
-					console.warn("Condition not met. Interval not started.");
+				const createResponse =await createUserInformation.json();
+				if(createResponse.status  === 200){
+					console.log('user successsfully create');
+					setEmail('');
+					setPrice(null);
 				}
+				
+				console.log('create information',createUserInformation);
+				
 			}
 			catch(error){
 				throw error;

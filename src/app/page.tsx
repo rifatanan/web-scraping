@@ -3,10 +3,8 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Input from '@/components/Input'
 import Slider from '@/components/Slider'
-import AfterIntervalEmailCall from '@/utils/AfterIntervalEmailCall'
 
 const page = () => {
-	AfterIntervalEmailCall();
 	const [data,setData] =  useState<object | undefined >(undefined);
 
 	return (
@@ -18,7 +16,7 @@ const page = () => {
 				</div>
 				<h1 className='font-bold text-4xl'>Unlesh the Power of <span className='text-red-600'>Price Wise</span></h1>
 				<p>Powerfull and self serve product and growth analytics to help you and convert,engage and retain more</p>
-				<Input data={data} />
+				<Input />
 			</div>
 			<Slider />
 		</div>

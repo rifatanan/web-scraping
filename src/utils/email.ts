@@ -11,7 +11,7 @@ export const Email = async (email: any, price: any) => {
     };
 
     try {
-        const sendMail = await fetch('/api/email/', {
+        const sendMail = await fetch('http://localhost:3000/api/email/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

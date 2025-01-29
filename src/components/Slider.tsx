@@ -15,18 +15,18 @@ const heroIcon = [
 const Slider = () => {
 	const [currentIndex, setCurrentIndex] = useState(0);
 
-	// useEffect(() => {
-	// 	const interval = setInterval(() => {
-	// 		setCurrentIndex((prev) =>{
-	// 			if(prev === heroIcon.length-1)
-	// 				prev=0;
-	// 			else
-	// 				prev = prev+1;
-	// 			return prev;
-	// 		}
-	// 	)}, 2000);
-	// 	clearInterval(interval);
-	//   }, []);
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setCurrentIndex((prev) =>{
+				if(prev === heroIcon.length-1)
+					prev=0;
+				else
+					prev = prev+1;
+				return prev;
+			}
+		)}, 4000);
+		clearInterval(interval);
+	  }, []);
 
 	return (
 		<div className="relative bg-slate-200 rounded-lg">
@@ -45,7 +45,7 @@ const Slider = () => {
 						<button
 							key={index}
 							onClick={() => setCurrentIndex(index)}
-							className={`${index === currentIndex ? 'bg-red-400' : 'bg-blue-600'} px-2 py-2 rounded-full shadow-lg`}
+							className={`${index === currentIndex ? 'bg-green-400' : 'bg-white'} px-2 py-2 rounded-full shadow-lg`}
 							>
 						</button>
 					))}

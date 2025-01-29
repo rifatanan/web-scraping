@@ -1,7 +1,6 @@
 'use client'
 import { scrapAddStoreProduct } from '@/app/lib/actions';
 import { useRouter } from 'next/navigation'
-
 import React, { FormEvent, useState } from 'react';
 
 const isValidAmazonProductURL = (value:string) =>{
@@ -17,11 +16,7 @@ const isValidAmazonProductURL = (value:string) =>{
 	}
 }
 
-type inputType ={
-	data:object | undefined,
-}
-
-const Input:React.FC<inputType> = ({data}) => {
+const Input = () => {
 	const [searchInput, setSearchInput] = useState('');
 	const [isLoading,setIsLoading] = useState(false);
 	const router = useRouter();
